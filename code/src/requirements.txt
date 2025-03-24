@@ -1,0 +1,13 @@
+# Backend
+Flask
+Flask-CORS
+pandas
+numpy
+requests
+scikit-learn
+
+# Frontend (Streamlit)
+streamlit
+streamlit-extras
+plotly
+altair
