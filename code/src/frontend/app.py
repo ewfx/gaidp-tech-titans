@@ -28,10 +28,17 @@ if uploaded_file:
         files={"file": ("uploaded.csv", file_bytes, "text/csv")}  # Correct format
     )
 
-# ✅ Display Flagged Transactions
+# ✅ Display Flagged Transactions Using API Call
 st.subheader("🚨 Flagged Transactions")
 try:
-    flagged_df = pd.read_csv("../data/flagged_transactions.csv")
-    st.dataframe(flagged_df, use_container_width=True)
-except FileNotFoundError:
-    st.warning("⚠️ No flagged transactions found. Upload and process a dataset first.")
+    response = requests.get(f"{BACKEND_URL}/flagged-transactions")
+    if response.status_code == 200:
+        flagged_df = pd.DataFrame(response.json())
+        if not flagged_df.empty:
+            st.dataframe(flagged_df, use_container_width=True)
+        else:
+            st.warning("⚠️ No flagged transactions found.")
+    else:
+        st.error(f"⚠️ Failed to fetch flagged transactions: {response.json().get('error', 'Unknown error')}")
+except Exception as e:
+    st.error(f"❌ Error fetching flagged transactions: {str(e)}")
