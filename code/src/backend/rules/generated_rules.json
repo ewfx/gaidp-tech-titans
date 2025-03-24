@@ -9,7 +9,7 @@
             "action": "Flag for review"
         },
         {
-            "name": "Identify Accounts with High Balances",
+            "name": "Identify Accounts with High Balance",
             "condition": "Account_Balance >= 100000",
             "operator": "greaterThanOrEqual",
             "value": 100000,
@@ -37,7 +37,7 @@
             "action": "Initiate suspicious activity report"
         },
         {
-            "name": "Identify Customers with High Risk Scores",
+            "name": "Identify Customers with Elevated Risk",
             "condition": "Risk_Score > 80",
             "operator": "greaterThan",
             "value": 80,
@@ -58,20 +58,12 @@
             "action": "Reject transaction"
         },
         {
-            "name": "Detect Unusual Transaction Patterns",
-            "condition": "Transaction_Amount > 2 * mean(Transaction_Amount)",
-            "operator": "greaterThan",
-            "value": 2,
-            "field": "Transaction_Amount",
-            "action": "Perform additional verification"
-        },
-        {
-            "name": "Identify Dormant Accounts",
-            "condition": "max(Transaction_Date) - min(Transaction_Date) > 365",
-            "operator": "greaterThan",
-            "value": 365,
+            "name": "Detect Unusual Transaction Timing",
+            "condition": "Transaction_Date.weekday() == 0",
+            "operator": "equal",
+            "value": 0,
             "field": "Transaction_Date",
-            "action": "Flag for review"
+            "action": "Perform additional verification"
         }
     ]
 }

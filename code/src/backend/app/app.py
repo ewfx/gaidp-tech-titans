@@ -31,7 +31,6 @@ def process_data():
     file.seek(0, io.SEEK_END)
     file_size = file.tell()
     file.seek(0)
-
     if file_size == 0:
         return jsonify({"error": "Uploaded file is empty"}), 400
 
@@ -47,16 +46,8 @@ def process_data():
         if not rules:
             return jsonify({"error": "Failed to generate rules"}), 500
 
-        # ✅ Validate transactions based on generated rules
-        flagged_transactions = validate(df, rules)  # ✅ Calling the existing `validate()` function
-
-        # ✅ Save flagged transactions
-        flagged_transactions.to_csv(FLAGGED_TRANSACTIONS_PATH, index=False)
-
         return jsonify({
             "message": "CSV processed successfully!",
-            "rules": rules,
-            "flagged_transactions": flagged_transactions.to_dict(orient="records")
         })
 
     except Exception as e:

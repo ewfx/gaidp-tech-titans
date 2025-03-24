@@ -11,27 +11,19 @@ if not OR_API_KEY:
 # ✅ Define OpenRouter API URL
 OR_MODEL_URL = "https://openrouter.ai/api/v1/chat/completions"
 
-# Ensure "rules" folder exists
-rules_folder = os.path.join(os.path.dirname(__file__), "../rules")
-os.makedirs(rules_folder, exist_ok=True)
-
-# Define rules file path
-output_file = os.path.join(rules_folder, "generated_rules.json")
-
-# ✅ Dynamically Load Column Names from the Dataset
-dataset_path = os.path.join(os.path.dirname(__file__), "../app/data/transactions.csv")
-print(dataset_path)
-if os.path.exists(dataset_path):
-    df = pd.read_csv(dataset_path, nrows=1)  # Load just 1 row to get column names
-    VALID_FIELDS = df.columns.tolist()  # Extract column names dynamically
-else:
-    print("⚠️ Dataset not found. Using default column names.")
-    VALID_FIELDS = ["Customer_ID", "Account_Balance", "Transaction_Amount",
-                    "Reported_Amount", "Currency", "Country", "Transaction_Date", "Risk_Score"]
 
 # ✅ Generate Rules Using OpenRouter
-def generate_rules():
+def generate_rules(df):
     try:
+        # Ensure "rules" folder exists
+        rules_folder = os.path.join(os.path.dirname(__file__), "../rules")
+        os.makedirs(rules_folder, exist_ok=True)
+
+        # Define rules file path
+        output_file = os.path.join(rules_folder, "generated_rules.json")
+
+        # ✅ Dynamically Load Column Names from the Dataset
+        VALID_FIELDS = df.columns.tolist()  # Extract column names dynamically
         # ✅ Improved AI Instructions
         formatted_instruction = (
             "Generate financial compliance validation rules in JSON format for banking transactions. "
@@ -106,5 +98,3 @@ def generate_rules():
         print(f"❌ Error: {str(e)}")
         return {}
 
-# Run rule generation
-generate_rules()

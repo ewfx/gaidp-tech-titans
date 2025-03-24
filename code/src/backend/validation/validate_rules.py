@@ -2,9 +2,7 @@ import pandas as pd
 import json
 import os
 
-# Load the original dataset
-csv_path = os.path.join(os.path.dirname(__file__), "../app/data/transactions.csv")
-regulatory_df = pd.read_csv(csv_path)
+
 
 # Load rules dynamically
 def load_rules():
@@ -17,8 +15,8 @@ def load_rules():
         return {"rules": []}
 
 # Dynamically apply rules
-def validate(data):
-    rules = load_rules().get("rules", [])
+def validate(data,rules):
+    # Load the original dataset
     flagged_transactions = []
 
     for rule in rules:
@@ -66,7 +64,7 @@ def validate(data):
         flagged_df = pd.concat(flagged_transactions)
 
         # ✅ Keep all original transaction columns while grouping by Customer_ID
-        flagged_df = regulatory_df.merge(flagged_df[["Customer_ID", "Reason", "Action"]], on="Customer_ID", how="left")
+        flagged_df = data.merge(flagged_df[["Customer_ID", "Reason", "Action"]], on="Customer_ID", how="left")
 
         # ✅ Combine multiple reasons per transaction **with numbering if multiple**
         def format_messages(messages):
@@ -86,9 +84,3 @@ def validate(data):
         print(f"\n✅ {len(flagged_df)} unique transactions flagged, retaining all details.")
     else:
         print("\n⚠️ No transactions were flagged.")
-
-# Load dataset dynamically
-df = pd.read_csv(csv_path)
-
-# Run validation
-validate(df)
