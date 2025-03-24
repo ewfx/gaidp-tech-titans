@@ -19,7 +19,7 @@ os.makedirs(rules_folder, exist_ok=True)
 output_file = os.path.join(rules_folder, "generated_rules.json")
 
 # ✅ Dynamically Load Column Names from the Dataset
-dataset_path = os.path.join(os.path.dirname(__file__), "../data/transactions.csv")
+dataset_path = os.path.join(os.path.dirname(__file__), "../app/data/transactions.csv")
 print(dataset_path)
 if os.path.exists(dataset_path):
     df = pd.read_csv(dataset_path, nrows=1)  # Load just 1 row to get column names

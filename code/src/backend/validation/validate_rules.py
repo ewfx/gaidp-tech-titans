@@ -3,7 +3,7 @@ import json
 import os
 
 # Load the original dataset
-csv_path = os.path.join(os.path.dirname(__file__), "../data/transactions.csv")
+csv_path = os.path.join(os.path.dirname(__file__), "../app/data/transactions.csv")
 regulatory_df = pd.read_csv(csv_path)
 
 # Load rules dynamically
