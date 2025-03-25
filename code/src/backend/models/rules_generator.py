@@ -4,7 +4,7 @@ import openai
 OPENAI_API_KEY = "api-key"
 
 def generate_rules(prompt, model="gpt-4", max_rules=5):
-    """Generate business rules based on a given prompt."""
+    """Generate rules based on a given prompt."""
     try:
         response = openai.ChatCompletion.create(
             model=model,
