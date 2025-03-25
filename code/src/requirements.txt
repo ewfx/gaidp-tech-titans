@@ -1,3 +1,6 @@
+#Install OpenAI’s Python package
+pip install openai
+
 # Backend
 Flask
 Flask-CORS
