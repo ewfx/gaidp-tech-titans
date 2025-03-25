@@ -9,7 +9,6 @@
 - [Challenges We Faced](#challenges-we-faced)
 - [How to Run](#how-to-run)
 - [Tech Stack](#tech-stack)
-- [Team](#team)
 
 ---
 
@@ -30,7 +29,7 @@ What inspired you to create this project? Describe the problem you're solving.
 Explain the key features and functionalities of your project.
 
 ## 🛠️ How We Built It
-Briefly outline the technologies, frameworks, and tools used in development.
+pip install -r requirements.txt
 
 ## 🚧 Challenges We Faced
 Describe the major technical or non-technical challenges your team encountered.
