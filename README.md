@@ -25,11 +25,7 @@ The Regulatory Data Profiler is an AI-driven solution designed to automate regul
 This solution ensures accuracy, scalability, and transparency in regulatory compliance, helping financial institutions detect risks, prevent fraud, and meet compliance requirements efficiently. 🚀
 
 ## 🎥 Demo
-🔗 [Live Demo](#) (if applicable)  
-📹 [Video Demo](#) (if applicable)  
-🖼️ Screenshots:
-
-![Screenshot 1](link-to-image)
+🔗 [Live Demo](https://github.com/ewfx/gaidp-tech-titans/blob/main/artifacts/demo/Demo.mp4)
 
 ## 💡 Inspiration
 Regulatory compliance in financial transactions is a time-consuming and complex process that requires manual rule extraction, anomaly detection, and fraud prevention. Institutions often struggle with interpreting regulatory instructions, ensuring data integrity, and identifying high-risk transactions.
