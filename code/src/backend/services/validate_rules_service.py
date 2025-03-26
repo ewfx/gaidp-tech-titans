@@ -2,69 +2,60 @@ import pandas as pd
 import json
 import os
 
-
+# ✅ Operator Mapping
+OPERATOR_MAP = {
+    "!=": lambda x, y: x != y,
+    "<": lambda x, y: x < y,
+    ">": lambda x, y: x > y,
+    "<=": lambda x, y: x <= y,
+    ">=": lambda x, y: x >= y,
+    "==": lambda x, y: x == y,
+    "not in": lambda x, y: ~x.isin(y) if isinstance(y, list) else x != y,
+    "in": lambda x, y: x.isin(y) if isinstance(y, list) else x == y
+}
 
 # Load rules dynamically
 def load_rules():
     rules_path = os.path.join(os.path.dirname(__file__), "../rules/generated_rules.json")
     try:
         with open(rules_path, "r") as f:
+            print(json.load(f))
             return json.load(f)
     except FileNotFoundError:
         print(f"❌ Error: Rules file not found at {rules_path}")
         return {"rules": []}
 
 # Dynamically apply rules
-def validate(data,rules):
+def validate(df,rules):
     # Load the original dataset
     flagged_transactions = []
-
+    rules = rules.get("rules", [])
     for rule in rules:
-        field = rule.get("field")
-        operator = rule.get("operator")
-        threshold = rule.get("value")  
-        reason = rule.get("name")  # ✅ Use 'name' as the reason
-        action = rule.get("action")  # ✅ Use 'action' from rules
-
-        if not operator or threshold is None:
-            print(f"⚠️ Rule '{reason}' skipped due to missing operator or value.")
-            continue
-
-        # ✅ Ensure field is numeric before applying conditions
-        if data[field].dtype == "object" and operator not in ["equal", "notEqual"]:
-            data[field] = pd.to_numeric(data[field], errors="coerce")
-
-        # ✅ Apply rule based on operator
-        if isinstance(threshold, list):  
-            flagged = data[data[field].isin(threshold)]  # ✅ Use `.isin()` for lists  
-        elif operator == "greaterThan":
-            flagged = data[data[field] > threshold]
-        elif operator == "lessThan":
-            flagged = data[data[field] < threshold]
-        elif operator == "greaterThanOrEqual":
-            flagged = data[data[field] >= threshold]
-        elif operator == "lessThanOrEqual":
-            flagged = data[data[field] <= threshold]
-        elif operator == "equal":
-            flagged = data[data[field] == threshold]
-        elif operator == "notEqual":
-            flagged = data[data[field] != threshold]
-        else:
+        field = rule["field"]
+        operator = rule["operator"]
+        value = rule["value"]
+    
+        if operator not in OPERATOR_MAP:
             print(f"⚠️ Skipping unsupported operator: {operator}")
+            # return pd.DataFrame()
             continue
-
-        if not flagged.empty:
-            flagged = flagged.copy()  # ✅ Prevents `SettingWithCopyWarning`
-            flagged["Reason"] = reason
-            flagged["Action"] = action  # ✅ Store action for flagged transactions
+        
+        try:
+            flagged = df[OPERATOR_MAP[operator](df[field], value)]
+            flagged["Reason"] = rule["name"]
+            flagged["Action"] = rule["action"]
             flagged_transactions.append(flagged)
+        except Exception as e:
+            print(f"❌ Error processing rule '{rule['name']}': {str(e)}")
+            return pd.DataFrame()
+
 
     # ✅ Merge flagged transactions with the original dataset
     if flagged_transactions:
         flagged_df = pd.concat(flagged_transactions)
 
         # ✅ Keep all original transaction columns while grouping by Customer_ID
-        flagged_df = data.merge(flagged_df[["Customer_ID", "Reason", "Action"]], on="Customer_ID", how="left")
+        flagged_df = df.merge(flagged_df[["Customer_ID", "Reason", "Action"]], on="Customer_ID", how="left")
 
         # ✅ Combine multiple reasons per transaction **with numbering if multiple**
         def format_messages(messages):
@@ -82,5 +73,6 @@ def validate(data,rules):
         # Save updated flagged transactions
         flagged_df.to_csv("../results/flagged_transactions.csv", index=False)
         print(f"\n✅ {len(flagged_df)} unique transactions flagged, retaining all details.")
+        return flagged_df
     else:
         print("\n⚠️ No transactions were flagged.")

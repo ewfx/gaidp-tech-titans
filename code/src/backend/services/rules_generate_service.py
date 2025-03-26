@@ -13,7 +13,7 @@ OR_MODEL_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 
 # ✅ Generate Rules Using OpenRouter
-def generate_rules(df):
+def generate_rules(df, instructions_text):
     try:
         # Ensure "rules" folder exists
         rules_folder = os.path.join(os.path.dirname(__file__), "../rules")
@@ -26,15 +26,12 @@ def generate_rules(df):
         VALID_FIELDS = df.columns.tolist()  # Extract column names dynamically
         # ✅ Improved AI Instructions
         formatted_instruction = (
-            "Generate financial compliance validation rules in JSON format for banking transactions. "
-            "Rules must follow fraud detection, money laundering prevention, and regulatory compliance. "
-            "Ensure all rules have: 'name', 'condition' (Python-compatible format), 'operator', 'value', 'field', and 'action'. "
-            "The 'field' must be one of these valid column names: "
-            f"{', '.join(VALID_FIELDS)}. "
-            "Ensure 'operator' is one of ['greaterThan', 'lessThan', 'greaterThanOrEqual', 'lessThanOrEqual', 'equal', 'notEqual']. "
-            "Ensure 'value' contains a numeric threshold. "
-            "Ensure the 'condition' field replaces 'value' with the actual numeric threshold. "
-            "Return ONLY valid JSON output with no explanations."
+            "Based on the following regulatory reporting instructions, generate financial compliance validation rules in JSON format.\n\n"
+            f"Instructions:\n{instructions_text}\n\n"
+            "Ensure each rule contains: 'name', 'condition', 'operator', 'value', 'field', and 'action'. "
+            "The 'field' must be one of these valid column names from the dataset: "
+            f"{', '.join(df.columns)}. "
+            "Return only valid JSON output with no explanations."
         )
 
         headers = {
@@ -68,30 +65,20 @@ def generate_rules(df):
         rules_text = choices[0].get("message", {}).get("content", "").strip()
         if not rules_text:
             print("❌ No valid rules generated. Retrying...")
-            return generate_rules()  # Retry if AI fails
+            return generate_rules(df, instructions_text)  # Retry if AI fails
 
         # ✅ Convert `content` string into a valid JSON object
         try:
             rules_json = json.loads(rules_text)
         except json.JSONDecodeError:
             print("❌ AI output is not valid JSON. Retrying...")
-            return generate_rules()  # Retry
-
-        # ✅ Validate & Fix `field` Names
-        for rule in rules_json:
-            if "field" not in rule or rule["field"] not in VALID_FIELDS:
-                print(f"⚠️ Rule '{rule.get('name', 'Unknown')}' has an invalid 'field'. Assigning default field.")
-                rule["field"] = "Transaction_Amount"  # Default fallback
-
-            # ✅ Ensure "condition" replaces "value" with actual numeric threshold
-            if "condition" in rule and "value" in rule:
-                rule["condition"] = rule["condition"].replace("value", str(rule["value"]))
+            return generate_rules(df, instructions_text)  # Retry
 
         # ✅ Save Rules to File
         with open(output_file, "w", encoding="utf-8") as f:
-            json.dump({"rules": rules_json}, f, indent=4)
-
-        print(f"✅ Rules successfully saved to {output_file}. Generated {len(rules_json)} rules.")
+            json.dump(rules_json, f, indent=4)
+        rule_count = len(rules_json.get("rules", []))  # Correctly count rules inside "rules" key
+        print(f"✅ Rules successfully saved to {output_file}. Generated {rule_count} rules.")
         return rules_json
 
     except Exception as e:

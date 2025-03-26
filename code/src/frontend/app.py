@@ -16,6 +16,7 @@ st.sidebar.header("📂 Upload Transaction Data")
 if "data_processed" not in st.session_state:
     st.session_state.data_processed = False  # Initially False
 
+uploaded_instructions = st.sidebar.file_uploader("Upload Regulatory Instructions (TXT)", type=["txt"])
 uploaded_file = st.sidebar.file_uploader("Upload CSV", type=["csv"])
 
 if uploaded_file:
@@ -25,34 +26,41 @@ if uploaded_file:
 
     # ✅ Convert file to BytesIO for proper transmission
     file_bytes = io.BytesIO(uploaded_file.getvalue())
+    instructions_bytes = io.BytesIO(uploaded_instructions.getvalue())
 
     # ✅ Send File to Backend for Processing
     st.info("🔄 Processing Uploaded Data...")
     response = requests.post(
         f"{BACKEND_URL}/process-data",
-        files={"file": ("uploaded.csv", file_bytes, "text/csv")}
+        files={"file": ("uploaded.csv", file_bytes, "text/csv"),
+        "instructions": ("instructions.txt", instructions_bytes, "text/plain")}
     )
 
+    
     if response.status_code == 200:
         st.session_state.data_processed = True  # ✅ Set flag to True after processing
+        result = response.json()
         st.success("✅ Data Processed Successfully! Flagged transactions generated.")
+        
+        # ✅ Display Flagged Transactions
+        st.subheader("🚨 Flagged Transactions")
+        flagged_df = pd.DataFrame(result["flagged_transactions"])
+        st.dataframe(flagged_df, use_container_width=True)
+
+        # ✅ Display Generated Rules
+        st.subheader("📜 Generated Compliance Rules")
+        st.json(result["rules"], expanded=False)
+
+        # ✅ Display Anomaly Detection Results
+        st.subheader("⚠️ Anomalies Detected")
+        anomalies_df = pd.DataFrame(result["anomalies"])
+        st.dataframe(anomalies_df, use_container_width=True)
+
+        # ✅ Display Risk Scores
+        st.subheader("📊 Risk Scores")
+        risk_scores_df = pd.DataFrame(result["risk_scores"])
+        st.dataframe(risk_scores_df, use_container_width=True)
     else:
         st.error(f"⚠️ Failed to process data: {response.json().get('error', 'Unknown error')}")
-
-# ✅ Display Flagged Transactions ONLY After Processing New Data
-if st.session_state.data_processed:
-    st.subheader("🚨 Flagged Transactions")
-    try:
-        response = requests.get(f"{BACKEND_URL}/flagged-transactions")
-        if response.status_code == 200:
-            flagged_df = pd.DataFrame(response.json())
-            if not flagged_df.empty:
-                st.dataframe(flagged_df, use_container_width=True)
-            else:
-                st.warning("⚠️ No flagged transactions found.")
-        else:
-            st.error(f"⚠️ Failed to fetch flagged transactions: {response.json().get('error', 'Unknown error')}")
-    except Exception as e:
-        st.error(f"❌ Error fetching flagged transactions: {str(e)}")
-else:
+if not st.session_state.data_processed:
     st.warning("📂 Upload a dataset and process it to see flagged transactions.")

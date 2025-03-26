@@ -1,69 +1,100 @@
 {
     "rules": [
         {
-            "name": "Detect Suspicious Transaction Amount",
-            "condition": "Transaction_Amount > 10000",
-            "operator": "greaterThan",
+            "name": "Transaction Amount Validation",
+            "condition": "Transaction_Amount",
+            "operator": "!=",
+            "value": "Reported_Amount",
+            "field": "Transaction_Amount",
+            "action": "alert",
+            "exception": {
+                "condition": "Currency",
+                "operator": "in",
+                "value": "cross-currency",
+                "field": "Currency",
+                "action": "allow",
+                "deviation": 0.01
+            }
+        },
+        {
+            "name": "Account Balance Validation",
+            "condition": "Account_Balance",
+            "operator": "<",
+            "value": 0,
+            "field": "Account_Balance",
+            "action": "alert",
+            "exception": {
+                "condition": "Account_Balance",
+                "operator": "==",
+                "value": "OD",
+                "field": "Account_Balance",
+                "action": "allow"
+            }
+        },
+        {
+            "name": "Currency Validation",
+            "condition": "Currency",
+            "operator": "not in",
+            "value": "valid_iso_4217_codes",
+            "field": "Currency",
+            "action": "alert"
+        },
+        {
+            "name": "Cross Border Transaction Validation",
+            "condition": "Transaction_Amount",
+            "operator": ">",
             "value": 10000,
             "field": "Transaction_Amount",
-            "action": "Flag for review"
+            "action": "require_remarks",
+            "exception": {
+                "condition": "Country",
+                "operator": "in",
+                "value": "accepted_jurisdictions",
+                "field": "Country",
+                "action": "allow"
+            }
         },
         {
-            "name": "Identify Accounts with High Balance",
-            "condition": "Account_Balance >= 100000",
-            "operator": "greaterThanOrEqual",
-            "value": 100000,
-            "field": "Account_Balance",
-            "action": "Perform enhanced due diligence"
-        },
-        {
-            "name": "Monitor Transactions from High-Risk Countries",
-            "condition": "Country in ['North Korea', 'Iran', 'Syria']",
-            "operator": "equal",
-            "value": [
-                "North Korea",
-                "Iran",
-                "Syria"
-            ],
-            "field": "Country",
-            "action": "Escalate for investigation"
-        },
-        {
-            "name": "Detect Potential Money Laundering",
-            "condition": "Reported_Amount < Transaction_Amount",
-            "operator": "lessThan",
-            "value": 1,
-            "field": "Reported_Amount",
-            "action": "Initiate suspicious activity report"
-        },
-        {
-            "name": "Identify Customers with Elevated Risk",
-            "condition": "Risk_Score > 80",
-            "operator": "greaterThan",
-            "value": 80,
-            "field": "Risk_Score",
-            "action": "Apply enhanced monitoring"
-        },
-        {
-            "name": "Validate Currency Compliance",
-            "condition": "Currency not in ['USD', 'EUR', 'GBP', 'JPY']",
-            "operator": "notEqual",
-            "value": [
-                "USD",
-                "EUR",
-                "GBP",
-                "JPY"
-            ],
-            "field": "Currency",
-            "action": "Reject transaction"
-        },
-        {
-            "name": "Detect Unusual Transaction Timing",
-            "condition": "Transaction_Date.weekday() == 0",
-            "operator": "equal",
-            "value": 0,
+            "name": "Transaction Date Validation",
+            "condition": "Transaction_Date",
+            "operator": ">",
+            "value": "current_date",
             "field": "Transaction_Date",
-            "action": "Perform additional verification"
+            "action": "alert"
+        },
+        {
+            "name": "Aged Transaction Validation",
+            "condition": "Transaction_Date",
+            "operator": "<",
+            "value": "365_days_ago",
+            "field": "Transaction_Date",
+            "action": "alert"
+        },
+        {
+            "name": "High-Risk Transaction Validation",
+            "condition": "Transaction_Amount",
+            "operator": ">",
+            "value": 5000,
+            "field": "Transaction_Amount",
+            "action": "trigger_compliance_check",
+            "exception": {
+                "condition": "Country",
+                "operator": "not in",
+                "value": "high_risk_countries",
+                "field": "Country",
+                "action": "allow"
+            }
+        },
+        {
+            "name": "Round-Number Transaction Validation",
+            "condition": "Transaction_Amount",
+            "operator": "in",
+            "value": [
+                1000,
+                5000
+            ],
+            "field": "Transaction_Amount",
+            "action": "require_additional_validation"
         }
     ]
 }

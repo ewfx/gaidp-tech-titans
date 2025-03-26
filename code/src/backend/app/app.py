@@ -8,8 +8,10 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 # ✅ Import existing rule generator and validator
-from models.rules_generate import generate_rules
-from validation.validate_rules import validate
+from services.risk_score_service import compute_risk_score
+from services.rules_generate_service import generate_rules
+from services.validate_rules_service import validate
+from services.anomaly_detection_service import detect_anomalies
 
 app = Flask(__name__)
 
@@ -23,35 +25,61 @@ FLAGGED_TRANSACTIONS_PATH = os.path.join(UPLOAD_FOLDER, "flagged_transactions.cs
 
 @app.route("/process-data", methods=["POST"])
 def process_data():
-    """Process uploaded CSV, generate dynamic rules, validate transactions, and return flagged results."""
-    if "file" not in request.files:
-        return jsonify({"error": "No file uploaded"}), 400
+    """Process uploaded dataset & regulatory reporting instructions."""
+    
+    if "file" not in request.files or "instructions" not in request.files:
+        return jsonify({"error": "Both dataset and regulatory instructions are required"}), 400
 
     file = request.files["file"]
+    instructions_file = request.files["instructions"]
+
     file.seek(0, io.SEEK_END)
+    instructions_file.seek(0, io.SEEK_END)
     file_size = file.tell()
+    instructions_size = instructions_file.tell()
     file.seek(0)
-    if file_size == 0:
-        return jsonify({"error": "Uploaded file is empty"}), 400
+    instructions_file.seek(0)
+
+    if file_size == 0 or instructions_size == 0:
+        return jsonify({"error": "One of the uploaded files is empty"}), 400
 
     try:
-        # ✅ Read CSV
+        # ✅ Read dataset
         df = pd.read_csv(io.BytesIO(file.read()))
 
-        if df.empty:
-            return jsonify({"error": "Uploaded CSV contains no data"}), 400
+        # ✅ Read regulatory reporting instructions
+        instructions_text = instructions_file.read().decode("utf-8")
+        if df.empty or not instructions_text.strip():
+            return jsonify({"error": "Uploaded data or instructions are empty"}), 400
 
-        # ✅ Generate rules dynamically
-        rules = generate_rules(df)  # ✅ Calling the existing `generate_rules()` function
+        # ✅ Generate rules dynamically based on instructions
+        rules = generate_rules(df, instructions_text)  # Pass instructions for better rule generation
         if not rules:
             return jsonify({"error": "Failed to generate rules"}), 500
 
+        # ✅ Validate transactions based on generated rules
+        flagged_transactions = validate(df, rules)
+
+        # ✅ Perform anomaly detection
+        anomalies = detect_anomalies(df)
+
+        # ✅ Compute dynamic risk scores
+        df = compute_risk_score(df)
+
+        # ✅ Save flagged transactions
+        # flagged_transactions.to_csv(FLAGGED_TRANSACTIONS_PATH, index=False)
+
         return jsonify({
-            "message": "CSV processed successfully!",
+            "message": "Processing completed!",
+            "rules": rules,
+            "anomalies": anomalies.to_dict(orient="records"),
+            "risk_scores": df[["Customer_ID", "Risk_Score_Adjusted"]].to_dict(orient="records"),
+            "flagged_transactions": flagged_transactions.to_dict(orient="records")
         })
 
     except Exception as e:
-        return jsonify({"error": f"Failed to process CSV: {str(e)}"}), 500
+        return jsonify({"error": f"Failed to process data: {str(e)}"}), 500
+
 
 
 @app.route("/flagged-transactions", methods=["GET"])

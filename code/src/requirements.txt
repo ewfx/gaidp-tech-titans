@@ -5,9 +5,14 @@ pandas
 numpy
 requests
 scikit-learn
+numba
 
 # Frontend (Streamlit)
 streamlit
 streamlit-extras
 plotly
 altair
+
+# Additional dependencies
+jsonschema
+pytest
