@@ -14,7 +14,15 @@
 ---
 
 ## 🎯 Introduction
-A brief overview of your project and its purpose. Mention which problem statement are your attempting to solve. Keep it concise and engaging.
+The Regulatory Data Profiler is an AI-driven solution designed to automate regulatory compliance and fraud detection in financial transactions. This project addresses the challenge of regulatory data profiling by:
+
+✅ Extracting profiling rules from regulatory reporting instructions
+✅ Detecting anomalies and potential fraud in transaction data
+✅ Generating Python validation code for compliance checks
+✅ Computing risk scores for flagged transactions
+✅ Suggesting remediation actions for compliance violations
+
+This solution ensures accuracy, scalability, and transparency in regulatory compliance, helping financial institutions detect risks, prevent fraud, and meet compliance requirements efficiently. 🚀
 
 ## 🎥 Demo
 🔗 [Live Demo](#) (if applicable)  
@@ -24,37 +32,95 @@ A brief overview of your project and its purpose. Mention which problem statemen
 ![Screenshot 1](link-to-image)
 
 ## 💡 Inspiration
-What inspired you to create this project? Describe the problem you're solving.
+Regulatory compliance in financial transactions is a time-consuming and complex process that requires manual rule extraction, anomaly detection, and fraud prevention. Institutions often struggle with interpreting regulatory instructions, ensuring data integrity, and identifying high-risk transactions.
+
+Our inspiration came from the need to automate compliance validation while maintaining accuracy, scalability, and explainability. By leveraging AI, machine learning, and automation, we aim to simplify compliance processes, detect fraud in real time, and help financial institutions avoid penalties.
 
 ## ⚙️ What It Does
-Explain the key features and functionalities of your project.
+The Regulatory Data Profiler is an end-to-end AI-powered compliance pipeline that:
+
+🔹 Extracts Profiling Rules 📜
+   ➤ Interprets regulatory instructions and generates validation rules automatically.
+
+🔹 Detects Anomalies & Fraud 🚨
+   ➤ Uses unsupervised ML techniques to detect unusual patterns and suspicious transactions.
+
+🔹 Generates Python Validation Code 🖥️
+   ➤ Creates Python scripts for data validation, ensuring compliance with financial regulations.
+
+🔹 Computes Risk Scores 📊
+   ➤ Assigns risk scores to transactions based on historical data and fraud indicators.
+
+🔹 Provides Suggested Remediation Actions ✅
+   ➤ Suggests actions such as manual review, enhanced due diligence, or regulatory reporting.
+
+🔹 Interactive UI for Auditors 🎛️
+   ➤ Streamlit-based UI where auditors can upload datasets, view flagged transactions, and analyze risk scores.
 
 ## 🛠️ How We Built It
-Briefly outline the technologies, frameworks, and tools used in development.
+We developed this solution using a modular, scalable approach with the following technologies:
+
+🔹 Python 🐍 – Core programming language
+🔹 Flask 🚀 – Backend API for data processing and rule validation
+🔹 Streamlit 🎨 – Interactive UI for auditors
+🔹 Pandas & NumPy 📊 – Data manipulation and processing
+🔹 Scikit-learn 🏆 – Anomaly detection using unsupervised ML
+🔹 OpenAI / OpenRouter API 🤖 – Generating compliance rules dynamically
+🔹 Hugging Face Models 🧠 – Advanced AI-driven rule extraction
+🔹 Docker 🐳 – Containerized deployment for scalability
+
+The backend efficiently processes uploaded datasets, extracts rules from regulatory instructions, validates transactions, and returns flagged transactions to the UI in real-time.
 
 ## 🚧 Challenges We Faced
-Describe the major technical or non-technical challenges your team encountered.
+🚧 Ensuring AI-Generated Rules Are Accurate
+   ➤ AI sometimes generates vague or inconsistent rules. We refined prompts and validated outputs to ensure relevance.
+
+🚧 Handling Large Datasets Efficiently
+   ➤ Compliance datasets can be huge. We optimized our pipeline using batch processing and multiprocessing for scalability.
+
+🚧 Seamless Integration Between AI, Backend, and UI
+   ➤ Managing real-time interactions between Flask (backend), OpenAI/Hugging Face (AI models), and Streamlit (frontend) required careful API structuring.
+
+🚧 Mapping AI-Generated Rules to Data Schema Dynamically
+   ➤ We ensured that rules dynamically adapt to different datasets without hardcoded field names.
+
+🚧 Handling Unsupported Operators in Validation
+   ➤ AI sometimes used unsupported operators (e.g., match, not in). We handled them gracefully while ensuring other rules still function.
+
+Despite these challenges, we successfully built an intelligent, scalable, and user-friendly solution that can revolutionize regulatory compliance automation! 🚀
 
 ## 🏃 How to Run
 1. Clone the repository  
    ```sh
-   git clone https://github.com/your-repo.git
+   git clone https://github.com/ewfx/gaidp-tech-titans.git
+   cd gaidp-tech-titans
    ```
 2. Install dependencies  
    ```sh
-   npm install  # or pip install -r requirements.txt (for Python)
+   cd code
+   pip install -r requirements.txt
    ```
 3. Run the project  
+   Backend
    ```sh
-   npm start  # or python app.py
+   cd src\backend\app
+   py app.py
    ```
+   Frontend. New Seperate Terminal
+   ```sh
+   cd src\frontend\app
+   py app.py
+   ```	
 
 ## 🏗️ Tech Stack
-- 🔹 Frontend: React / Vue / Angular
-- 🔹 Backend: Node.js / FastAPI / Django
-- 🔹 Database: PostgreSQL / Firebase
-- 🔹 Other: OpenAI API / Twilio / Stripe
+🔹 Frontend: Streamlit (for an interactive and user-friendly UI)
+🔹 Backend: Flask (for handling API requests, processing data, and running ML models)
+🔹 Database: CSV-based storage (can be extended to SQL/NoSQL databases)
+🔹 AI & ML:
+    🤖 OpenRouter API / Hugging Face Models (for AI-powered rule generation)
+    📊 Scikit-learn (for anomaly detection and risk scoring)
+🔹 Other: Pandas, NumPy, Requests (for efficient data processing and API communication)
 
 ## 👥 Team
-- **Your Name** - [GitHub](#) | [LinkedIn](#)
-- **Teammate 2** - [GitHub](#) | [LinkedIn](#)
+- **Manoj Kumar Pasumarthi** - [GitHub](#) | [LinkedIn](#)
+- **Dubey, Pritesh** - [GitHub](#) | [LinkedIn](#)
